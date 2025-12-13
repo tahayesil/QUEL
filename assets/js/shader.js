@@ -1,26 +1,28 @@
-function initShaderBackground(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) {
-        console.error("Shader canvas not found!");
-        return;
-    }
+console.log("Initializing shader for:", canvasId);
+const canvas = document.getElementById(canvasId);
+if (!canvas) {
+    console.error("Shader canvas not found!");
+    return;
+}
+console.log("Canvas found");
 
-    const gl = canvas.getContext('webgl');
-    if (!gl) {
-        console.warn('WebGL not supported.');
-        return;
-    }
+const gl = canvas.getContext('webgl');
+if (!gl) {
+    console.warn('WebGL not supported.');
+    return;
+}
+console.log("WebGL context obtained");
 
-    // Vertex shader source code
-    const vsSource = `
+// Vertex shader source code
+const vsSource = `
         attribute vec4 aVertexPosition;
         void main() {
             gl_Position = aVertexPosition;
         }
     `;
 
-    // Fragment shader source code
-    const fsSource = `
+// Fragment shader source code
+const fsSource = `
         precision highp float;
         uniform vec2 iResolution;
         uniform float iTime;
@@ -118,104 +120,103 @@ function initShaderBackground(canvasId) {
         }
     `;
 
-    // Helper function to compile shader
-    const loadShader = (gl, type, source) => {
-        const shader = gl.createShader(type);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
+// Helper function to compile shader
+const loadShader = (gl, type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
 
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('Shader compile error: ', gl.getShaderInfoLog(shader));
-            gl.deleteShader(shader);
-            return null;
-        }
-
-        return shader;
-    };
-
-    // Initialize shader program
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
-    if (!vertexShader || !fragmentShader) return;
-
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        console.error('Shader program link error: ', gl.getProgramInfoLog(shaderProgram));
-        return;
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error('Shader compile error: ', gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
     }
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = [
-        -1.0, -1.0,
-         1.0, -1.0,
-        -1.0,  1.0,
-         1.0,  1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    return shader;
+};
 
-    const programInfo = {
-        program: shaderProgram,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-        },
-        uniformLocations: {
-            resolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
-            time: gl.getUniformLocation(shaderProgram, 'iTime'),
-        },
-    };
+// Initialize shader program
+const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    const resizeCanvas = () => {
-        if(canvas.parentElement) {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        } else {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-    };
+if (!vertexShader || !fragmentShader) return;
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+const shaderProgram = gl.createProgram();
+gl.attachShader(shaderProgram, vertexShader);
+gl.attachShader(shaderProgram, fragmentShader);
+gl.linkProgram(shaderProgram);
 
-    let startTime = Date.now();
-    function render() {
-        const currentTime = (Date.now() - startTime) / 1000;
-
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        gl.useProgram(programInfo.program);
-
-        gl.uniform2f(programInfo.uniformLocations.resolution, canvas.width, canvas.height);
-        gl.uniform1f(programInfo.uniformLocations.time, currentTime);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexPosition,
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
-        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        requestAnimationFrame(render);
-    }
-
-    render();
+if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+    console.error('Shader program link error: ', gl.getProgramInfoLog(shaderProgram));
+    return;
 }
 
-// Auto-start
-document.addEventListener('DOMContentLoaded', () => {
-    initShaderBackground('hero-shader-canvas');
-});
+const positionBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+const positions = [
+    -1.0, -1.0,
+    1.0, -1.0,
+    -1.0, 1.0,
+    1.0, 1.0,
+];
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+const programInfo = {
+    program: shaderProgram,
+    attribLocations: {
+        vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+    },
+    uniformLocations: {
+        resolution: gl.getUniformLocation(shaderProgram, 'iResolution'),
+        time: gl.getUniformLocation(shaderProgram, 'iTime'),
+    },
+};
+
+const resizeCanvas = () => {
+    if (canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    } else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+};
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+let startTime = Date.now();
+function render() {
+    const currentTime = (Date.now() - startTime) / 1000;
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.useProgram(programInfo.program);
+
+    gl.uniform2f(programInfo.uniformLocations.resolution, canvas.width, canvas.height);
+    gl.uniform1f(programInfo.uniformLocations.time, currentTime);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(
+        programInfo.attribLocations.vertexPosition,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
+    );
+    gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+}
+
+render();
+}
+
+// Auto-start immediately since script is at end of body
+console.log("Shader.js loaded - executing init immediately");
+initShaderBackground('hero-shader-canvas');
