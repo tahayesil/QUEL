@@ -1,29 +1,30 @@
+// assets/js/shader.js
+
 function initShaderBackground(canvasId) {
-    console.log("Initializing shader for:", canvasId);
+    console.log("Initializing Shader (Complex Version) for:", canvasId);
     const canvas = document.getElementById(canvasId);
+
     if (!canvas) {
         console.error("Shader canvas not found!");
         return;
     }
-    console.log("Canvas found");
 
     const gl = canvas.getContext('webgl');
     if (!gl) {
         console.warn('WebGL not supported.');
         return;
     }
-    console.log("WebGL context obtained");
 
-    // Vertex shader source code
-    const vsSource = `
+    // Vertex Shader
+    const vsSource = \`
         attribute vec4 aVertexPosition;
         void main() {
             gl_Position = aVertexPosition;
         }
-    `;
+    \`;
 
-    // Fragment shader source code
-    const fsSource = `
+    // Fragment Shader - Ported from React component
+    const fsSource = \`
         precision highp float;
         uniform vec2 iResolution;
         uniform float iTime;
@@ -79,9 +80,9 @@ function initShaderBackground(canvasId) {
             vec2 fragCoord = gl_FragCoord.xy;
             vec4 fragColor;
             vec2 uv = fragCoord.xy / iResolution.xy;
-            // Scale correction for aspect ratio is not in user snippet, but standard GLSL often needs it. 
-            // The user snippet uses: vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
-            // This handles aspect ratio by dividing by iResolution.x
+            
+            // Fix aspect ratio scaling using the React code logic
+            // React code: vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
             vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
 
             float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
@@ -119,9 +120,9 @@ function initShaderBackground(canvasId) {
 
             gl_FragColor = fragColor;
         }
-    `;
+    \`;
 
-    // Helper function to compile shader
+    // Shader Compile Helper
     const loadShader = (gl, type, source) => {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
@@ -132,11 +133,9 @@ function initShaderBackground(canvasId) {
             gl.deleteShader(shader);
             return null;
         }
-
         return shader;
     };
 
-    // Initialize shader program
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
@@ -156,9 +155,9 @@ function initShaderBackground(canvasId) {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     const positions = [
         -1.0, -1.0,
-        1.0, -1.0,
-        -1.0, 1.0,
-        1.0, 1.0,
+         1.0, -1.0,
+        -1.0,  1.0,
+         1.0,  1.0,
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
@@ -177,13 +176,11 @@ function initShaderBackground(canvasId) {
         if (canvas.parentElement) {
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
-            console.log("Resized canvas to parent:", canvas.width, canvas.height);
-            gl.viewport(0, 0, canvas.width, canvas.height);
         } else {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
         }
+        gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -193,7 +190,7 @@ function initShaderBackground(canvasId) {
     function render() {
         const currentTime = (Date.now() - startTime) / 1000;
 
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearColor(0.0, 0.0, 0.0, 0.0); // Transparent background
         gl.clear(gl.COLOR_BUFFER_BIT);
 
         gl.useProgram(programInfo.program);
@@ -219,6 +216,7 @@ function initShaderBackground(canvasId) {
     render();
 }
 
-// Auto-start immediately since script is at end of body
-console.log("Shader.js loaded - executing init immediately");
-initShaderBackground('hero-shader-canvas');
+// Auto-init specific to the Hero Section
+document.addEventListener('DOMContentLoaded', () => {
+    initShaderBackground('hero-shader-canvas');
+});
