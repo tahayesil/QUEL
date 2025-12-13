@@ -7,7 +7,7 @@
     <title>QUEL - The Source of Creation</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 
@@ -383,8 +383,7 @@
             <header class="hero-section" id="hero-scene">
                 <canvas id="hero-shader-canvas"
                     class="absolute top-0 left-0 w-full h-full object-cover z-0 pointer-events-none"></canvas>
-                <div ref="titleRef"
-                    class="physics-element text-center z-20 max-w-4xl px-4 animate-[fadeIn_1s_ease-out]">
+                <div ref="titleRef" class="text-center z-20 max-w-4xl px-4 animate-[fadeIn_1s_ease-out]">
                     <h1
                         class="hero-title text-6xl md:text-8xl font-extrabold mb-6 brand-font bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
                         QUEL
@@ -395,7 +394,7 @@
                     </p>
                 </div>
 
-                <div ref="searchRef" class="physics-element hero-input-container group">
+                <div ref="searchRef" class="hero-input-container group">
                     <input v-model="searchQuery" @keyup.enter="scrollToAllPens" type="text" class="hero-input"
                         placeholder="Search for sources...">
                     <div
@@ -690,7 +689,7 @@
     </div>
 
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
-    <script type= "module" src="assets/js/app.js"></script>
+    <script type="module" src="assets/js/app.js"></script>
     <script src="assets/js/shader.js"></script>
 
 </body>

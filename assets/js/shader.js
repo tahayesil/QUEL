@@ -54,6 +54,16 @@ function initShaderBackground(canvasId) {
         #define drawCrispLine(pos, halfWidth, t) smoothstep(halfWidth + gridSmoothWidth, halfWidth, abs(pos - (t)))
         #define drawPeriodicLine(freq, width, t) drawCrispLine(freq / 2.0, width, abs(mod(t, freq) - (freq) / 2.0))
 
+        float drawGridLines(float axis) {
+            return drawCrispLine(0.0, axisWidth, axis)
+                    + drawPeriodicLine(majorLineFrequency, majorLineWidth, axis)
+                    + drawPeriodicLine(minorLineFrequency, minorLineWidth, axis);
+        }
+
+        float drawGrid(vec2 space) {
+            return min(1.0, drawGridLines(space.x) + drawGridLines(space.y));
+        }
+
         float random(float t) {
             return (cos(t) + cos(t * 1.3 + 1.3) + cos(t * 1.4 + 1.4)) / 3.0;
         }
@@ -66,7 +76,9 @@ function initShaderBackground(canvasId) {
             vec2 fragCoord = gl_FragCoord.xy;
             vec4 fragColor;
             vec2 uv = fragCoord.xy / iResolution.xy;
-            // Scale fix for aspect ratio
+            // Scale correction for aspect ratio is not in user snippet, but standard GLSL often needs it. 
+            // The user snippet uses: vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
+            // This handles aspect ratio by dividing by iResolution.x
             vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
 
             float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
@@ -76,9 +88,8 @@ function initShaderBackground(canvasId) {
             space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
 
             vec4 lines = vec4(0.0);
-            // Renkleri temana uygun hale getirdim (Daha koyu/indigo)
-            vec4 bgColor1 = vec4(0.06, 0.06, 0.1, 1.0); // #0f0f1a uyumlu
-            vec4 bgColor2 = vec4(0.1, 0.06, 0.18, 1.0);
+            vec4 bgColor1 = vec4(0.1, 0.1, 0.3, 1.0);
+            vec4 bgColor2 = vec4(0.3, 0.1, 0.5, 1.0);
 
             for(int l = 0; l < linesPerGroup; l++) {
                 float normalizedLineIndex = float(l) / float(linesPerGroup);
@@ -107,20 +118,26 @@ function initShaderBackground(canvasId) {
         }
     `;
 
+    // Helper function to compile shader
     const loadShader = (gl, type, source) => {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
+
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+            console.error('Shader compile error: ', gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
+
         return shader;
     };
 
+    // Initialize shader program
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    if (!vertexShader || !fragmentShader) return;
 
     const shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertexShader);
@@ -128,13 +145,18 @@ function initShaderBackground(canvasId) {
     gl.linkProgram(shaderProgram);
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        console.error('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+        console.error('Shader program link error: ', gl.getProgramInfoLog(shaderProgram));
         return;
     }
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = [ -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0 ];
+    const positions = [
+        -1.0, -1.0,
+         1.0, -1.0,
+        -1.0,  1.0,
+         1.0,  1.0,
+    ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
     const programInfo = {
@@ -148,11 +170,14 @@ function initShaderBackground(canvasId) {
         },
     };
 
-    // Canvas'ı parent elementine (Hero Section) göre boyutlandır
     const resizeCanvas = () => {
         if(canvas.parentElement) {
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
             gl.viewport(0, 0, canvas.width, canvas.height);
         }
     };
@@ -173,7 +198,14 @@ function initShaderBackground(canvasId) {
         gl.uniform1f(programInfo.uniformLocations.time, currentTime);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexPosition,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -183,7 +215,7 @@ function initShaderBackground(canvasId) {
     render();
 }
 
-// Otomatik başlat (DOMContentLoaded bekleniyor)
+// Auto-start
 document.addEventListener('DOMContentLoaded', () => {
     initShaderBackground('hero-shader-canvas');
 });
