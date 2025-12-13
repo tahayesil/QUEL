@@ -347,7 +347,7 @@
                         <div v-if="isLoggedIn" class="relative">
                             <button @click="showUserMenu = !showUserMenu"
                                 class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition">
-                                <img src="https://ui-avatars.com/api/?name=Demo+User&background=6366f1&color=fff&size=128"
+                                <img :src="user.avatar || 'https://ui-avatars.com/api/?name=User'"
                                     class="w-8 h-8 rounded-full border border-indigo-500" alt="User">
                                 <span v-if="user.tier !== 'free'"
                                     :class="['absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#1a1a2e] flex items-center justify-center text-[8px]', user.tier === 'pro' ? 'bg-amber-500' : 'bg-purple-600']">
@@ -357,7 +357,7 @@
                             <div v-if="showUserMenu"
                                 class="absolute right-0 mt-2 w-56 glass-card p-2 shadow-xl z-50 bg-[#1a1a2e]">
                                 <div class="px-4 py-3 border-b border-gray-700 mb-2">
-                                    <p class="text-white font-bold">Demo User</p>
+                                    <p class="text-white font-bold">{{ user.name || 'User' }}</p>
                                     <p class="text-xs text-gray-400 capitalize">{{ user.tier.replace('_', ' ') }} Plan
                                     </p>
                                 </div>
@@ -690,15 +690,9 @@
 
 
 
-<<<<<<< HEAD
-    <script type="module" src="assets/js/app.js?v=2"></script>
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
     <script src="assets/js/shader.js?v=2"></script>
-=======
-<script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
-
-    <script src="assets/js/shader.js?v=2"></script>
-
     <script type="module" src="assets/js/app.js?v=2"></script>
 </body>
+
 </html>

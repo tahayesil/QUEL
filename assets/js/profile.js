@@ -51,14 +51,23 @@ createApp({
             if (!token) {
                 window.location.href = 'index.html'; // Giriş yoksa ana sayfaya at
             }
-            
+
             // LocalStorage'dan kullanıcı verilerini çek
             const savedTier = localStorage.getItem('quel_user_tier');
-            if(savedTier) this.user.tier = savedTier;
+            if (savedTier) this.user.tier = savedTier;
+
+            const savedName = localStorage.getItem('quel_user_name');
+            if (savedName) this.user.name = savedName;
+
+            const savedEmail = localStorage.getItem('quel_user_email');
+            if (savedEmail) this.user.email = savedEmail;
+
+            const savedAvatar = localStorage.getItem('quel_user_avatar');
+            if (savedAvatar) this.user.avatar = savedAvatar;
 
             // API Key kontrolü
             const key = localStorage.getItem(API_KEY_STORAGE);
-            if(key) {
+            if (key) {
                 this.apiKeyInput = key;
                 this.hasApiKey = true;
             }
@@ -70,7 +79,7 @@ createApp({
             }
         },
         saveApiKey() {
-            if(!this.apiKeyInput.trim()) return;
+            if (!this.apiKeyInput.trim()) return;
             localStorage.setItem(API_KEY_STORAGE, this.apiKeyInput);
             this.hasApiKey = true;
             alert('API Key Saved Successfully!');
@@ -85,7 +94,7 @@ createApp({
             return `<!DOCTYPE html><html><head><style>body{margin:0;overflow:hidden;transform:scale(0.8);transform-origin:top left;width:125%;height:125%;}${p.css}</style></head><body>${p.html}</body></html>`;
         },
         deleteProject(id) {
-            if(confirm('Are you sure you want to delete this source? This cannot be undone.')) {
+            if (confirm('Are you sure you want to delete this source? This cannot be undone.')) {
                 this.projects = this.projects.filter(p => p.id !== id);
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(this.projects));
             }

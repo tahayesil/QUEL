@@ -1,25 +1,17 @@
 // assets/js/shader.js
 
 function initShaderBackground(canvasId) {
-<<<<<<< HEAD
-    console.log("Initializing Shader (Complex Version) for:", canvasId);
-    const canvas = document.getElementById(canvasId);
-
-=======
     console.log("Shader başlatılıyor...", canvasId); // Kontrol Logu
     const canvas = document.getElementById(canvasId);
-    
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
+
     if (!canvas) {
         console.error("HATA: Shader canvas bulunamadı! ID:", canvasId);
         return;
     }
-<<<<<<< HEAD
-=======
 
     // Canvas boyutlarını hemen ayarla
     const resizeCanvas = () => {
-        if(canvas.parentElement) {
+        if (canvas.parentElement) {
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
         } else {
@@ -30,7 +22,6 @@ function initShaderBackground(canvasId) {
     };
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas(); // İlk boyutlandırma
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
 
     const gl = canvas.getContext('webgl');
     if (!gl) {
@@ -46,13 +37,8 @@ function initShaderBackground(canvasId) {
         }
     \`;
 
-<<<<<<< HEAD
-    // Fragment Shader - Ported from React component
-    const fsSource = \`
-=======
     // Fragment shader source code (Hata vermemesi için precision eklendi)
-    const fsSource = `
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
+    const fsSource = \`
         precision highp float;
         uniform vec2 iResolution;
         uniform float iTime;
@@ -73,38 +59,6 @@ function initShaderBackground(canvasId) {
             vec2 fragCoord = gl_FragCoord.xy;
             vec2 uv = fragCoord.xy / iResolution.xy;
             
-<<<<<<< HEAD
-            // Fix aspect ratio scaling using the React code logic
-            // React code: vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
-            vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
-
-            float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
-            float verticalFade = 1.0 - (cos(uv.y * 6.28) * 0.5 + 0.5);
-
-            space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
-            space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
-
-            vec4 lines = vec4(0.0);
-            vec4 bgColor1 = vec4(0.1, 0.1, 0.3, 1.0);
-            vec4 bgColor2 = vec4(0.3, 0.1, 0.5, 1.0);
-
-            for(int l = 0; l < linesPerGroup; l++) {
-                float normalizedLineIndex = float(l) / float(linesPerGroup);
-                float offsetTime = iTime * offsetSpeed;
-                float offsetPosition = float(l) + space.x * offsetFrequency;
-                float rand = random(offsetPosition + offsetTime) * 0.5 + 0.5;
-                float halfWidth = mix(minLineWidth, maxLineWidth, rand * horizontalFade) / 2.0;
-                float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex)) * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
-                float linePosition = getPlasmaY(space.x, horizontalFade, offset);
-                float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0 + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
-
-                float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
-                vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
-                float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
-
-                line = line + circle;
-                lines += line * lineColor * rand;
-=======
             // Basit bir dalga efekti (Performanslı ve garantili)
             float time = iTime * 0.5;
             
@@ -118,7 +72,6 @@ function initShaderBackground(canvasId) {
                 
                 float line = 0.005 / abs(uv.y - 0.5 + wave);
                 color += lineColor * line * (0.5 / i);
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
             }
 
             // Hafif vignette
@@ -129,11 +82,7 @@ function initShaderBackground(canvasId) {
         }
     \`;
 
-<<<<<<< HEAD
-    // Shader Compile Helper
-=======
     // Shader Derleme Yardımcısı
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
     const loadShader = (gl, type, source) => {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
@@ -164,16 +113,7 @@ function initShaderBackground(canvasId) {
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-<<<<<<< HEAD
-    const positions = [
-        -1.0, -1.0,
-         1.0, -1.0,
-        -1.0,  1.0,
-         1.0,  1.0,
-    ];
-=======
     const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0];
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
     const programInfo = {
@@ -187,23 +127,6 @@ function initShaderBackground(canvasId) {
         },
     };
 
-<<<<<<< HEAD
-    const resizeCanvas = () => {
-        if (canvas.parentElement) {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        } else {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        gl.viewport(0, 0, canvas.width, canvas.height);
-    };
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-=======
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced
     let startTime = Date.now();
     function render() {
         resizeCanvas(); // Her karede boyutu kontrol et (Garanti olsun)
@@ -230,12 +153,6 @@ function initShaderBackground(canvasId) {
     render();
 }
 
-<<<<<<< HEAD
-// Auto-init specific to the Hero Section
-document.addEventListener('DOMContentLoaded', () => {
-    initShaderBackground('hero-shader-canvas');
-});
-=======
 // Sayfa yüklendiğinde başlat
 document.addEventListener('DOMContentLoaded', () => {
     // Biraz gecikmeli başlat ki CSS tam otursun
@@ -243,4 +160,3 @@ document.addEventListener('DOMContentLoaded', () => {
         initShaderBackground('hero-shader-canvas');
     }, 100);
 });
->>>>>>> 675b8f45d8436c901d14fe653c84cb19194a0ced

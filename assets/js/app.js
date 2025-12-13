@@ -101,6 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             async logout() {
                 await signOut(auth);
+                localStorage.removeItem('quel_auth_token');
+                localStorage.removeItem('quel_user_tier');
+                localStorage.removeItem('quel_user_name');
+                localStorage.removeItem('quel_user_email');
+                localStorage.removeItem('quel_user_avatar');
                 this.showToastNotification('Logged out successfully');
                 this.showUserMenu = false;
             },
@@ -299,6 +304,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.user.email = user.email;
                     this.user.name = user.displayName || user.email.split('@')[0];
                     this.user.avatar = user.photoURL || `https://ui-avatars.com/api/?name=${this.user.name}&background=random`;
+
+                    // Sync for profile.html
+                    user.getIdToken().then(token => localStorage.setItem('quel_auth_token', token));
+                    localStorage.setItem('quel_user_tier', this.user.tier);
+                    localStorage.setItem('quel_user_name', this.user.name);
+                    localStorage.setItem('quel_user_email', this.user.email);
+                    localStorage.setItem('quel_user_avatar', this.user.avatar);
+
                     this.loadProjects();
 
                     if (this.isCreatingNew) { this.createNewPen(); this.isCreatingNew = false; }
@@ -306,6 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     this.isLoggedIn = false;
                     this.user = { uid: null, name: 'Guest', tier: 'free' };
+                    // Clear for profile.html
+                    localStorage.removeItem('quel_auth_token');
+                    localStorage.removeItem('quel_user_tier');
+                    localStorage.removeItem('quel_user_name');
+                    localStorage.removeItem('quel_user_email');
+                    localStorage.removeItem('quel_user_avatar');
+
                     this.projects = [...defaultProjects];
                 }
             });
