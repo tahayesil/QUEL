@@ -119,8 +119,8 @@
                                     <span class="text-white capitalize font-bold">{{ user.tier.replace('_', ' ') }}
                                         Plan</span>
                                 </div>
-                                <a href="index.html"
-                                    class="text-xs text-indigo-400 hover:text-white uppercase font-bold transition">Upgrade</a>
+                                <button @click="showPricingModal = true"
+                                    class="text-xs text-indigo-400 hover:text-white uppercase font-bold transition">Upgrade</button>
                             </div>
                         </div>
                     </div>
@@ -191,6 +191,119 @@
             </div>
 
         </div>
+        <!-- Toast Notification -->
+        <transition name="fade">
+            <div v-if="showToast" :class="['toast', {'delete-mode': toastType === 'delete'}]">
+                <div class="toast-icon">
+                    <i :class="toastType === 'delete' ? 'fas fa-trash' : 'fas fa-check'"></i>
+                </div>
+                <span>{{ toastMessage }}</span>
+            </div>
+        </transition>
+
+        <!-- Pricing Modal -->
+        <transition name="fade">
+            <div v-if="showPricingModal"
+                class="fixed inset-0 z-[200] flex items-center justify-center bg-[#0f0f1a]/90 backdrop-blur-sm p-4">
+                <div
+                    class="relative glass-card p-8 w-full max-w-5xl mx-4 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto">
+                    <button @click="showPricingModal = false"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-white transition z-10"><i
+                            class="fas fa-times"></i></button>
+
+                    <div class="text-center mb-12">
+                        <h2 class="text-4xl font-bold text-white mb-3 brand-font">Choose Your Plan</h2>
+                        <p class="text-gray-400">Unlock powerful features and scale your creativity</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 border-2"
+                            :class="user.tier === 'free' ? 'border-indigo-500' : 'border-gray-700'">
+                            <div class="text-center mb-6">
+                                <h3 class="text-2xl font-bold text-white mb-2">Free</h3>
+                                <div class="text-4xl font-bold text-white mb-1">$0</div>
+                                <p class="text-gray-400 text-sm">Forever</p>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Public sources only</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Basic code editor</li>
+                                <li class="flex items-start gap-2 text-sm text-gray-500"><i
+                                        class="fas fa-times text-red-400 mt-1"></i> No private sources</li>
+                                <li class="flex items-start gap-2 text-sm text-gray-500"><i
+                                        class="fas fa-times text-red-400 mt-1"></i> No asset hosting</li>
+                                <li class="flex items-start gap-2 text-sm text-gray-500"><i
+                                        class="fas fa-times text-red-400 mt-1"></i> No collaboration</li>
+                                <li class="flex items-start gap-2 text-sm text-gray-500"><i
+                                        class="fas fa-times text-red-400 mt-1"></i> AI assistant locked</li>
+                                <li class="flex items-start gap-2 text-sm text-red-400"><i class="fas fa-ad mt-1"></i>
+                                    Ads displayed</li>
+                            </ul>
+                            <button @click="switchTier('free')" :disabled="user.tier === 'free'"
+                                class="w-full py-3 rounded-lg bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:opacity-50 text-white font-semibold transition">
+                                {{ user.tier === 'free' ? 'Current Plan' : 'Switch to Free' }}
+                            </button>
+                        </div>
+
+                        <div class="glass-card p-6 border-2"
+                            :class="user.tier === 'pro' ? 'border-amber-500' : 'border-gray-700'">
+                            <div class="text-center mb-6">
+                                <div class="inline-block mb-2"><span class="tier-badge pro">PRO</span></div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+                                <div class="text-4xl font-bold text-white mb-1">$9</div>
+                                <p class="text-gray-400 text-sm">Per month</p>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Everything in Free</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Private sources</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> 2GB asset hosting</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Collab mode (2 people)</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> No ads</li>
+                                <li class="flex items-start gap-2 text-sm text-gray-500"><i
+                                        class="fas fa-times text-red-400 mt-1"></i> AI assistant locked</li>
+                            </ul>
+                            <button @click="switchTier('pro')" :disabled="user.tier === 'pro'"
+                                class="w-full py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 text-white font-semibold transition shadow-lg">
+                                {{ user.tier === 'pro' ? 'Current Plan' : 'Upgrade to Pro' }}
+                            </button>
+                        </div>
+
+                        <div class="glass-card p-6 border-2"
+                            :class="user.tier === 'pro_plus' ? 'border-purple-500' : 'border-gray-700'">
+                            <div class="text-center mb-6">
+                                <div class="inline-block mb-2"><span class="tier-badge pro_plus">PRO+</span></div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Pro+</h3>
+                                <div class="text-4xl font-bold text-white mb-1">$19</div>
+                                <p class="text-gray-400 text-sm">Per month</p>
+                            </div>
+                            <ul class="space-y-3 mb-6">
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Everything in Pro</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Unlimited private sources</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> 10GB asset hosting</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> Collab mode (4 people)</li>
+                                <li class="flex items-start gap-2 text-sm"><i
+                                        class="fas fa-check text-green-400 mt-1"></i> <strong>AI Assistant (Llama
+                                        3)</strong></li>
+                            </ul>
+                            <button @click="switchTier('pro_plus')" :disabled="user.tier === 'pro_plus'"
+                                class="w-full py-3 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 disabled:opacity-50 text-white font-semibold transition shadow-lg">
+                                {{ user.tier === 'pro_plus' ? 'Current Plan' : 'Upgrade to Pro+' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
     </div>
 
     <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>

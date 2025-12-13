@@ -17,7 +17,13 @@ createApp({
             projects: [],
             activeTab: 'public',
             apiKeyInput: '',
-            hasApiKey: false
+            hasApiKey: false,
+
+            // Modal States
+            showPricingModal: false,
+            showToast: false,
+            toastMessage: '',
+            toastType: 'success'
         };
     },
     computed: {
@@ -82,12 +88,24 @@ createApp({
             if (!this.apiKeyInput.trim()) return;
             localStorage.setItem(API_KEY_STORAGE, this.apiKeyInput);
             this.hasApiKey = true;
-            alert('API Key Saved Successfully!');
+            this.showToastNotification('API Key Saved Successfully!');
+        },
+        showToastNotification(msg, type = 'success') {
+            this.toastMessage = msg;
+            this.toastType = type;
+            this.showToast = true;
+            setTimeout(() => this.showToast = false, 3000);
         },
         getTierColor(tier) {
             if (tier === 'pro') return 'bg-amber-500 text-white';
             if (tier === 'pro_plus') return 'bg-purple-600 text-white';
             return 'bg-gray-600 text-white';
+        },
+        switchTier(tier) {
+            this.user.tier = tier;
+            localStorage.setItem('quel_user_tier', tier); // Persist change
+            this.showPricingModal = false;
+            this.showToastNotification(`Welcome to ${tier.toUpperCase()} Plan!`);
         },
         getProjectPreview(p) {
             // Iframe içinde önizleme (CSS'i biraz küçülttük)
