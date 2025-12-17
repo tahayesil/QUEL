@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Projects Collection rules
+    match /projects/{projectId} {
+      
+      // READ: 
+      // - Allow if project is NOT private (Public)
+      // - OR if user is authenticated AND they are the owner
+      allow read: if resource.data.isPrivate == false || 
+                  (request.auth != null && resource.data.uid == request.auth.uid);
+      
+      // CREATE:
+      // - Must be logged in
+      // - The 'uid' field in the new doc must match the user's Auth ID
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      
+      // UPDATE & DELETE:
+      // - Must be logged in
+      // - Must be the owner (existing doc uid matches request uid)
+      allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    
+    // Deny access to all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
